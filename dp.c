@@ -93,5 +93,163 @@ Description:  Starts three processes, one for each of cmd1, cmd2, and cmd3.
 
 int doublePipe(char **cmd1, char **cmd2, char **cmd3)
 {
+	pid_t helperchildpid;
+	int fd[2];
+	
+	pid_t parentpid;
+	parentpid = getpid(); //Current process Id 
+				//should be > 0
+
+	pipe(fd);
+	helperchildpid = fork();	//Child Process id
+				//should be 0	
+	
+	if(helperchildpid == 0){
+		//child helper proccess not child a or child b 
+		close(fd[0]); //closing reading since this
+				//process writes to parent
+		
+		dup2(fd[1],1); //writing it to parent
+		
+		close(fd[1]); //done writing so close it 
+		
+		execvp(*cmd1, cmd1); //executing the first one 
+	//what I was doing earlier
+	/*
+		close(fd[1]); // reading only, closing write
+		// Close reading end
+		//dup2(fd[1], 1);
+		dup2(fd[0],0);
+		//close(fd[1]); 
+		close(fd[0]);
+
+		execvp(*cmd2, cmd2);
+		helperFunc
+	
+	*/	
+	
+	}
+
+/*	Ignore this
+	else if(pid == -1){
+		
+		perror("Failed to Fork");
+		return 1;
+
+			}
+*/
+	else {
+
+
+		// Recieve msg from helpchild
+		// copy the msg
+
+		
+
+		pid_t childApid; //pid for child A
+		int fdA[2]; 	//fd for child A	
+		
+		pid_t childBpid; //pid for child B
+		int fdB[2];	//fd for child B
+		
+		pipe(fdA);	//pipe for child A to parent	
+		pipe(fdB);	//pipe for child B to parent
+		
+		char buffer[2048];	//creating buffer
+		close(fd[1]);		//close writing
+
+	
+	int counter = read(fd[0], buffer, sizeof(buffer));
+	char buffer2[counter];
+	char buffer3[counter];
+
+	for (int i=0; i<counter; i++){
+		
+		buffer2[i]=buffer[i];
+		buffer3[i]=buffer[i]; 
+	
+	}
+	
+		write(fdA[1], buffer2, sizeof(buffer2) );
+		write(fdB[1], buffer3, sizeof(buffer3) );
+
+		childApid=fork(); //creating child A here
+		
+		
+
+
+
+		if(childApid==0){ //if successfully child A
+			
+		close(fdA[1]); //close writing since 
+					//child A reads
+
+		dup2(fdA[0],0);//child A reading from pipe
+			execvp(*cmd2,cmd2);//execute before close
+						
+			//close(fd[0]);	//wiritng closed 
+	
+
+	}	
+		else{
+			childBpid=fork();
+			if(childBpid==0){
+				close (fdB[1]);
+				dup2(fdB[0],0);
+				//close(fdB[0]);
+				execvp(*cmd3, cmd3);
+			}
+		close(fd[1]);
+		//close(fdB[0]);
+
+
+
+
+
+			
+
+			}
+/*
+	close(fd[1]);
+	close(fd[0]);
+	
+	pid_t pid2;
+	int fd2[2];
+
+	pipe(fd2);
+	pid2 = fork();
+	
+	if(pid2==0){
+	
+		dup2(fd2[1],1);
+		close(fd[1]);
+		execvp(*cmd1, cmd1);
+	}
+	else{
+		pid2=fork();
+		
+		if(pid2==0){
+				dup2(fd[0],0);
+				close(fd2[0]);
+				execvp(*cmd3, cmd3);
+			}
+		close(fd2[1]);
+		close(fd2[0]);
+	}
+	}	
+
+
+
+
+close(fd[1]); //close reading since
+					//child B writes
+			
+			dup2(fd[0],0);	//child B writing
+			execvp(*cmd3,cmd3);//execute before close
+			close(fd[0]);	//wiritng closed 
+*/
+
 	return 0;
+}
+
 }
